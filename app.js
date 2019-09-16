@@ -2,6 +2,8 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 
+var Game = require("./server/Game.js");
+
 app.get('/', function(req, res){
     res.sendFile(__dirname + "/client/index.html");
 });
@@ -17,5 +19,5 @@ console.log("Server running at 127.0.0.1:8000");
 var players = [];
 var sockets = [];
 
-var serverComms = new (require("./server/ServerComms.js"))(server);
-
+//var serverComms = new (require("./server/ServerComms.js"))(server);
+var testGame = new Game();

@@ -1,4 +1,4 @@
-var fs = require("fs")
+/*var fs = require("fs")
 
 
 class ServerComms{
@@ -18,3 +18,4 @@ class ServerComms{
 }
 
 module.exports = ServerComms;
+*/
