@@ -2,8 +2,27 @@
 <html>
     <head>
 
+        <link rel="stylesheet" type="text/css" href="/css/lib/bootstrap.min.css" />
+
+        <script src="/js/lib/jquery-3.4.1.min.js"></script>
+        <script src="/js/lib/bootstrap.min.js"></script>
+        <script src="/js/lib/socket.io.slim.js"></script>
+
+
+        <script src="/js/map/Map.js"></script>
+        <script src="/js/map/Tile.js"></script>
+        <script src="/js/Game.js"></script>
+        <script src="/js/Main.js"></script>
     </head>
     <body>
-        Hello World!
+        <div id="menu">
+            <input type="text" id="playername" placeholder="Player Name"/>
+            <button onclick="joingame()">Join Game</button>
+        </div>
+        <div id="game" style="display: none;">
+            <canvas id="canvas" height="600" width="600" ></canvas>
+        </div>
+        <div id="images" style="display: none;">
+        </div>
     </body>
 </html>
