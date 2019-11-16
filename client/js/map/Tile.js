@@ -55,6 +55,8 @@ class Tile{
         this.sides.forEach(function(tile, index){
             if(tile){
                 tile.render(ctx, render_uuid, x + TILE_SIDE_SHIFT[index].x, y + TILE_SIDE_SHIFT[index].y);
+            }else{
+                ctx.drawImage(getImage("/res/cloud.png"), x + TILE_SIDE_SHIFT[index].x, y + TILE_SIDE_SHIFT[index].y);
             }
         });
 

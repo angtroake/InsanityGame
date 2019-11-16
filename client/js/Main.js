@@ -1,10 +1,15 @@
 var socket = io.connect();
-
+var game = null;
 
 function getImage(file){
     var i = new Image;
     i.src = file;
     return i;
+}
+
+function showCanvas(){
+    $("#menu").hide();
+    $("#game").show();
 }
 
 function joingame(){
@@ -16,6 +21,7 @@ function joingame(){
     }
 
     socket.emit("join_game", playername);
+    game = new Game();
     showCanvas();
 }
 
