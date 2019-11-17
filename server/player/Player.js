@@ -10,7 +10,6 @@ class Player{
     }
 
     send(dest, msg){
-        console.log(msg);
         this.socket.emit(dest, msg);
     }
 

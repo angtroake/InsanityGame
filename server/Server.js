@@ -25,14 +25,19 @@ class Server{
         var player = new Player(playername, socket);
         var joinedGame = false;
         this.games.forEach(function(game){
-            if(!joinedGame && (game.state = Game.GAME_STATE.ingame && game.players.length < Game.MAX_PLAYERS)){
+            console.log("reet " + game.players.length + " " + game.state);
+            if(!joinedGame && (game.state = Game.GAME_STATE.lobby && game.players.length < Game.MAX_PLAYERS)){
+                console.log("teet");
                 game.playerJoin(player);
+                socket.join(game.socket_room);
                 joinedGame = true;
             }
         });
         if(!joinedGame){
+            console.log("new game");
             var newgame = new Game(this.io);
             this.games.push(newgame);
+            socket.join(newgame.socket_room);
             newgame.playerJoin(player);
 
         }

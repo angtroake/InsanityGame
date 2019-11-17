@@ -20,8 +20,10 @@ function joingame(){
         return;
     }
 
+    socket.on("join_game", function(game_uuid){
+        game = new Game(socket, game_uuid);
+    });
     socket.emit("join_game", playername);
-    game = new Game();
     showCanvas();
 }
 
@@ -36,3 +38,22 @@ function generate_uuid(){
 $(document).ready(function(){
     showCanvas();
 });*/
+
+
+/*
+window.onerror = function(message, source, lineno, colno, error) {
+    socket.emit("error", {
+        "message": message,
+        "source": source,
+        "lineno": lineno,
+        "colno": colno,
+        "error": error
+    });
+    console.log({
+        "message": message,
+        "source": source,
+        "lineno": lineno,
+        "colno": colno,
+        "error": error
+    });
+}*/
