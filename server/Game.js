@@ -1,7 +1,6 @@
 var Util = require("./Util.js")
 var Map = require("./map/map1/Map.js");
 
-
 const MAX_TURN_TIME = 60; //Seconds
 const MAX_LOBBY_TIME = 10;
 const MAX_PLAYERS = 6;
@@ -21,7 +20,6 @@ class Game{
         
         this.running = true;
         this.state = Game.GAME_STATE.lobby;
-        console.log(Game.GAME_STATE);
 
         this.socket_room = "game/" + this.uuid;
 
@@ -33,7 +31,7 @@ class Game{
         console.log("Player Join");
         this.players.push(player);
         player.send("join_game", this.uuid);
-        
+        player.game = this;
     }
 
     playerQuit(){
@@ -44,7 +42,7 @@ class Game{
         if(this.state == Game.GAME_STATE.lobby){
             this.emit("lobby_tick", {
                 "time": MAX_LOBBY_TIME - this.time,
-                "players": this._listPlayers(),
+                "players": this._listPlayersLobby(),
                 "max_players": MAX_PLAYERS
             });
             
@@ -61,9 +59,9 @@ class Game{
         }else if(this.state == Game.GAME_STATE.ingame){
             this.emit("game_tick", {
                 "current_player": this.currentPlayer.name,
-                "time": MAX_TURN_TIME - this.time
+                "time": MAX_TURN_TIME - this.time,
+                "players": this._listPlayersGame()
             });
-            console.log(this.time);
             if(this.time >= MAX_TURN_TIME)
                 this.nextTurn();
             else
@@ -85,7 +83,24 @@ class Game{
         Util.shuffle(this.players);
         this.currentPlayer = this.players.shift();
         this.players.push(this.currentPlayer);
-        this.emit("game_start", {});
+
+        this.players.forEach((player) => {
+            player.tile_uuid = this.map.root_tile.uuid;
+        });
+
+        this.emit("game_start", {
+            "root_tile": {
+                "uuid": this.map.root_tile.uuid,
+                "x": this.map.root_tile.x,
+                "y": this.map.root_tile.y,
+                "image": this.map.root_tile.image
+            }
+        });
+        this.emit("game_tick", {
+            "current_player": this.currentPlayer.name,
+            "time": MAX_TURN_TIME - this.time,
+            "players": this._listPlayersGame()
+        });
     }
 
     nextTurn(){
@@ -99,10 +114,23 @@ class Game{
     }
 
 
-    _listPlayers(){
+    _listPlayersLobby(){
         var name_list = [];
         this.players.forEach(function(p){name_list.push(p.name)});
         return name_list;
+    }
+
+    _listPlayersGame(){
+        var list = [];
+        this.players.forEach(function(p){list.push({
+            "name": p.name,
+            "tile_uuid": p.tile_uuid,
+            "health": p.health,
+            "sanity": p.sanity,
+            "strength": p.strength,
+            "agility": p.agility
+        })});
+        return list;
     }
 }
 

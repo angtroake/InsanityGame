@@ -11,16 +11,15 @@ class Game{
         this.canvas  = $(this.canvas);
         this.game_state = "lobby";
 
-        this.map = new Map(new Tile("/res/test.png", generate_uuid()));
+        this.mouse_listener = new MouseListener(this);
 
+        this.map = new Map(new Tile("/res/test.png", generate_uuid()));
+        this.map = null;
+        this.player = player;
         this.turn_time = 0;
         this.players = [];
         this.max_players;
-        /*
-        var tileTest = new Tile("/res/test.png", generate_uuid());
-        this.map.root_tile.setSide(0, tileTest);
-        var f = this.map.addTile(tileTest.uuid, 1, new Tile("/res/test.png", generate_uuid()));
-        */
+        
         this.socket.on("lobby_tick", (response) => {this.lobbyTick(response)});
         this.socket.on("game_tick", (response) => {this.gameTick(response)});
         this.socket.on("game_start", (response) => {this.gameStart(response)});
@@ -34,6 +33,8 @@ class Game{
 
 
     gameStart(response){
+        //console.log(response.root_tile.uuid);
+        this.map = new Map(new Tile(response.root_tile.image, response.root_tile.uuid, response.root_tile.x, response.root_tile.y));
         this.game_state = "ingame";
     }
 
@@ -41,10 +42,11 @@ class Game{
         this.game_state = "ingame";
         this.current_player = response.current_player;
         this.time = response.time;
+        this.players = response.players;
+        //console.log(this.players);
     }
 
     lobbyTick(response){
-        console.log(response);
         this.game_state = "lobby";
         this.turn_time = response.time;
         this.players = response.players;
@@ -79,6 +81,11 @@ class Game{
             this.ctx.fillText(this.current_player, this.canvas.width() / 2, 60);
             this.ctx.font = "45px Arial";
             this.ctx.fillText(this.time, this.canvas.width() / 2, 100);
+            
+            this.players.forEach((p) => {
+                var tile = this.map.getTileFromUUID(p.tile_uuid);
+                this.ctx.fillRect(tile.x + TILE_WIDTH/2 - 5, tile.y + TILE_HEIGHT/2 - 5, 10, 10);
+            });
         }
     }
 }

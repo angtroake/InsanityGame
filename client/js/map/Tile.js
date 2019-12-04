@@ -12,16 +12,15 @@ var TILE_SIDE_SHIFT = [
 
 class Tile{
     
-    constructor(image, uuid){
+    constructor(image, uuid, x, y){
         this.sides = [null,null,null,null,null,null];
         this.uuid = uuid;
         this.image = image;
+        this.x = x;
+        this.y = y;
         this.last_recursive_uuid = "";
+        this.highlight = false;
     }
-    /*
-    render(ctx, scrollX=0, scrollY=0){
-        ctx.drawImage(getImage(this.image), this.x, this.y);
-    }*/
 
     setSide(side, tile){
         if(side < this.sides.length){
@@ -30,7 +29,7 @@ class Tile{
         }
     }
 
-    getTile(uuid, recursive_uuid){
+    getTileFromUUID(uuid, recursive_uuid){
         if(recursive_uuid == this.last_recursive_uuid)
             return;
         
@@ -40,18 +39,34 @@ class Tile{
         var tileReturn = null;
         this.sides.forEach(function(tile){
             if(tile)
-                var t = tile.getTile(uuid, recursive_uuid);
+                var t = tile.getTileFromUUID(uuid, recursive_uuid);
                 if(t)
                     tileReturn = t;
         });
         return tileReturn;
     }
 
-    render(ctx, render_uuid, x, y){
+    render(ctx, render_uuid, x=this.x, y=this.y){
         if(render_uuid == this.last_recursive_uuid)
             return;
         this.last_recursive_uuid = render_uuid;
         ctx.drawImage(getImage(this.image), x, y);
+
+
+        if(this.highlight){
+            ctx.lineWidth = 10;
+            ctx.fillStyle = "#000";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y + TILE_HEIGHT/2);
+            ctx.lineTo(this.x + TILE_WIDTH * 1 / 4, this.y);
+            ctx.lineTo(this.x + TILE_WIDTH * 3 / 4, this.y);
+            ctx.lineTo(this.x + TILE_WIDTH, this.y + TILE_HEIGHT / 2);
+            ctx.lineTo(this.x + TILE_WIDTH * 3 / 4, this.y + TILE_HEIGHT);
+            ctx.lineTo(this.x + TILE_WIDTH * 1 / 4, this.y + TILE_HEIGHT);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
         this.sides.forEach(function(tile, index){
             if(tile){
                 tile.render(ctx, render_uuid, x + TILE_SIDE_SHIFT[index].x, y + TILE_SIDE_SHIFT[index].y);
@@ -60,6 +75,46 @@ class Tile{
             }
         });
 
+    }
+
+    setHighlight(x, y, recursive_uuid){
+        if(recursive_uuid == this.last_recursive_uuid)
+            return;
+        this.last_recursive_uuid = recursive_uuid;
+        this.highlight = false;
+        if(x > this.x && x < this.x + TILE_WIDTH){
+            if(y > this.y && y < this.y + TILE_HEIGHT){
+                this.highlight = true;
+            }
+        }
+        this.sides.forEach(function(tile){
+            if(tile)
+                tile.setHighlight(x, y, recursive_uuid);
+        });
+    }
+
+    getTileFromPosition(x, y, recursive_uuid){
+        if(recursive_uuid == this.last_recursive_uuid)
+            return;
+        this.last_recursive_uuid = recursive_uuid;
+        this.highlight = false;
+        if(x > this.x && x < this.x + TILE_WIDTH){
+            if(y > this.y && y < this.y + TILE_HEIGHT){
+                return this;
+            }
+        }
+        var tilefound = null;
+        this.sides.forEach(function(tile){
+            if(tile){
+                var t = tile.getTileFromPosition(x, y, recursive_uuid);
+                if(t)
+                    tilefound = t;
+            }
+        });
+
+        if(tilefound)
+            return tilefound;
+        return null;
     }
 
 }
