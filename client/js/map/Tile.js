@@ -54,7 +54,7 @@ class Tile{
 
 
         if(this.highlight){
-            ctx.lineWidth = 10;
+            ctx.lineWidth = 5;
             ctx.fillStyle = "#000";
             ctx.beginPath();
             ctx.moveTo(this.x, this.y + TILE_HEIGHT/2);
@@ -71,7 +71,7 @@ class Tile{
             if(tile){
                 tile.render(ctx, render_uuid, x + TILE_SIDE_SHIFT[index].x, y + TILE_SIDE_SHIFT[index].y);
             }else{
-                ctx.drawImage(getImage("/res/cloud.png"), x + TILE_SIDE_SHIFT[index].x, y + TILE_SIDE_SHIFT[index].y);
+                //ctx.drawImage(getIm/resage("/cloud.png"), x + TILE_SIDE_SHIFT[index].x, y + TILE_SIDE_SHIFT[index].y);
             }
         });
 

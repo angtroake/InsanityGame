@@ -2,7 +2,7 @@ var Util = require("./Util.js")
 var Map = require("./map/map1/Map.js");
 
 const MAX_TURN_TIME = 60; //Seconds
-const MAX_LOBBY_TIME = 10;
+const MAX_LOBBY_TIME = 1;
 const MAX_PLAYERS = 6;
 
 class Game{
@@ -30,12 +30,15 @@ class Game{
     playerJoin(player){
         console.log("Player Join");
         this.players.push(player);
-        player.send("join_game", this.uuid);
+        player.send("join_game", {
+            "game_uuid": this.uuid,
+            "move_auth": player.move_auth
+        });
         player.game = this;
     }
 
     playerQuit(){
-        console.log("Player Join");
+        console.log("Player Quit");
     }
 
     tick(){
@@ -124,6 +127,7 @@ class Game{
         var list = [];
         this.players.forEach(function(p){list.push({
             "name": p.name,
+            "uuid": p.uuid,
             "tile_uuid": p.tile_uuid,
             "health": p.health,
             "sanity": p.sanity,

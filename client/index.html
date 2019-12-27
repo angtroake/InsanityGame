@@ -17,8 +17,10 @@
     </head>
     <body>
         <div id="menu">
-            <input type="text" id="playername" placeholder="Player Name"/>
-            <button onclick="joingame()">Join Game</button>
+            <form id="loginform">
+                <input type="text" id="playername" placeholder="Player Name"/>
+                <button type="submit">Join Game</button>
+            </form>
         </div>
         <div id="game" style="display: none;">
             <canvas id="canvas" height="600" width="600" ></canvas>

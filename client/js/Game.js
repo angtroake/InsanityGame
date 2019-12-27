@@ -43,7 +43,19 @@ class Game{
         this.current_player = response.current_player;
         this.time = response.time;
         this.players = response.players;
-        //console.log(this.players);
+
+
+        this.players_on_tiles = {};
+
+        this.players.forEach((p) => {
+            
+            if(!this.players_on_tiles[p.tile_uuid]){
+                //console.log("meep");
+                this.players_on_tiles[p.tile_uuid] = [];
+            }
+            this.players_on_tiles[p.tile_uuid].push(p);
+        });
+        //console.log(this.players_on_tiles);
     }
 
     lobbyTick(response){
@@ -55,6 +67,9 @@ class Game{
     }
 
     render(){
+        var WIDTH = this.canvas.attr("width");
+        var HEIGHT = this.canvas.attr("height");
+
         if(this.game_state == "lobby"){
             this.ctx.font = "30px Arial";
             this.ctx.fillText("Lobby", 10, 50);
@@ -82,10 +97,31 @@ class Game{
             this.ctx.font = "45px Arial";
             this.ctx.fillText(this.time, this.canvas.width() / 2, 100);
             
-            this.players.forEach((p) => {
-                var tile = this.map.getTileFromUUID(p.tile_uuid);
-                this.ctx.fillRect(tile.x + TILE_WIDTH/2 - 5, tile.y + TILE_HEIGHT/2 - 5, 10, 10);
+
+            $.each(this.players_on_tiles, (tile_uuid, player_list) => {
+                var tile = this.map.getTileFromUUID(tile_uuid);
+                player_list.forEach((player) => {
+                    this.ctx.fillRect(tile.x + TILE_WIDTH/2 - 5, tile.y + TILE_HEIGHT/2 - 5, 10, 10);
+                });
             });
+
+            //PLAYER INFORMATION OVERLAY
+            this.ctx.beginPath();
+            this.ctx.fillStyle = "rgb(80, 80, 80)"
+            this.ctx.arc(150, HEIGHT - 150, 115, 0, 2 * Math.PI);
+            this.ctx.fill();
+
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "#7d4f0f";
+            this.ctx.lineWidth = 30;
+            this.ctx.arc(150, HEIGHT - 150, 130, 0, 2 * Math.PI);
+            this.ctx.stroke();
+
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = "#cf0000";
+            this.ctx.lineWidth = 15;
+            this.ctx.arc(150, HEIGHT - 150, 130, Math.PI/3, -Math.PI/3, true);
+            this.ctx.stroke();
         }
     }
 }

@@ -1,6 +1,8 @@
 var socket = io.connect();
 var game = null;
 
+MOVE_AUTH = "";
+
 function getImage(file){
     var i = new Image;
     i.src = file;
@@ -20,8 +22,9 @@ function joingame(){
         return;
     }
 
-    socket.on("join_game", function(game_uuid){
-        game = new Game(socket, game_uuid);
+    socket.on("join_game", function(data){
+        MOVE_AUTH = data["move_auth"];
+        game = new Game(socket, data["game_uuid"]);
     });
     socket.emit("join_game", playername);
     showCanvas();
@@ -34,10 +37,15 @@ function generate_uuid(){
     });
 }
 
-/*
+
 $(document).ready(function(){
-    showCanvas();
-});*/
+    //showCanvas();
+
+    $("#loginform").on("submit", function(e){
+        e.preventDefault();
+        joingame();
+    });
+});
 
 
 /*

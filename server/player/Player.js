@@ -4,6 +4,7 @@ class Player{
 
     constructor(name, socket){
         this.uuid = Util.generate_uuid();
+        this.move_auth = Util.generate_uuid();
         this.name = name;
         this.socket = socket;
         this.health = 10;
