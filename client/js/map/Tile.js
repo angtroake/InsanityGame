@@ -10,16 +10,22 @@ var TILE_SIDE_SHIFT = [
     {"x": -TILE_WIDTH*3/4, "y": -TILE_HEIGHT/2}
 ]
 
+/**      0
+ *   5  ___  1
+ *     /   \  
+ *   4 \___/ 2
+ *       3
+ */
+
 class Tile{
     
-    constructor(image, uuid, x, y){
+    constructor(image, uuid){
         this.sides = [null,null,null,null,null,null];
         this.uuid = uuid;
         this.image = image;
-        this.x = x;
-        this.y = y;
         this.last_recursive_uuid = "";
         this.highlight = false;
+        this.revealed = false;
     }
 
     setSide(side, tile){
@@ -46,23 +52,27 @@ class Tile{
         return tileReturn;
     }
 
-    render(ctx, render_uuid, x=this.x, y=this.y){
+    render(ctx, render_uuid, x, y){
         if(render_uuid == this.last_recursive_uuid)
             return;
         this.last_recursive_uuid = render_uuid;
-        ctx.drawImage(getImage(this.image), x, y);
 
+        if(this.revealed)
+            ctx.drawImage(getImage(this.image), x, y);
+        else{
+            ctx.drawImage(getImage("/res/cloud.png"), x, y);
+        }
 
         if(this.highlight){
             ctx.lineWidth = 5;
             ctx.fillStyle = "#000";
             ctx.beginPath();
-            ctx.moveTo(this.x, this.y + TILE_HEIGHT/2);
-            ctx.lineTo(this.x + TILE_WIDTH * 1 / 4, this.y);
-            ctx.lineTo(this.x + TILE_WIDTH * 3 / 4, this.y);
-            ctx.lineTo(this.x + TILE_WIDTH, this.y + TILE_HEIGHT / 2);
-            ctx.lineTo(this.x + TILE_WIDTH * 3 / 4, this.y + TILE_HEIGHT);
-            ctx.lineTo(this.x + TILE_WIDTH * 1 / 4, this.y + TILE_HEIGHT);
+            ctx.moveTo(x, y + TILE_HEIGHT/2);
+            ctx.lineTo(x + TILE_WIDTH * 1 / 4, y);
+            ctx.lineTo(x + TILE_WIDTH * 3 / 4, y);
+            ctx.lineTo(x + TILE_WIDTH, y + TILE_HEIGHT / 2);
+            ctx.lineTo(x + TILE_WIDTH * 3 / 4, y + TILE_HEIGHT);
+            ctx.lineTo(x + TILE_WIDTH * 1 / 4, y + TILE_HEIGHT);
             ctx.closePath();
             ctx.stroke();
         }
@@ -77,36 +87,41 @@ class Tile{
 
     }
 
-    setHighlight(x, y, recursive_uuid){
+    setHighlight(mx, my, x, y, recursive_uuid){
         if(recursive_uuid == this.last_recursive_uuid)
             return;
         this.last_recursive_uuid = recursive_uuid;
         this.highlight = false;
-        if(x > this.x && x < this.x + TILE_WIDTH){
-            if(y > this.y && y < this.y + TILE_HEIGHT){
-                this.highlight = true;
+        if(mx > x && mx < x + TILE_WIDTH){
+            if(my > y && my < y + TILE_HEIGHT){
+                //this.highlight = true;
+                var py = my - y;
+                var px = mx - x;
+                if(px > 1/4 * TILE_WIDTH * Math.abs(-1/TILE_HEIGHT*py + 1) && px < TILE_WIDTH*3/4 + 1/4 * TILE_WIDTH * Math.abs(-1/TILE_HEIGHT*py + 1)){
+                    this.highlight = true;
+                }
             }
         }
-        this.sides.forEach(function(tile){
+        this.sides.forEach((tile, i) => {
             if(tile)
-                tile.setHighlight(x, y, recursive_uuid);
+                tile.setHighlight(mx, my, x + TILE_SIDE_SHIFT[i].x, y + TILE_SIDE_SHIFT[i].y, recursive_uuid);
         });
     }
 
-    getTileFromPosition(x, y, recursive_uuid){
+    getTileFromPosition(px, py, x, y, recursive_uuid){
         if(recursive_uuid == this.last_recursive_uuid)
             return;
         this.last_recursive_uuid = recursive_uuid;
         this.highlight = false;
-        if(x > this.x && x < this.x + TILE_WIDTH){
-            if(y > this.y && y < this.y + TILE_HEIGHT){
+        if(px > x && px < x + TILE_WIDTH){
+            if(py > y && py < y + TILE_HEIGHT){
                 return this;
             }
         }
         var tilefound = null;
-        this.sides.forEach(function(tile){
+        this.sides.forEach(function(tile, i){
             if(tile){
-                var t = tile.getTileFromPosition(x, y, recursive_uuid);
+                var t = tile.getTileFromPosition(px, py, x + TILE_SIDE_SHIFT[i].x, y + TILE_SIDE_SHIFT[i].y, recursive_uuid);
                 if(t)
                     tilefound = t;
             }

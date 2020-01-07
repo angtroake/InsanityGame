@@ -9,7 +9,7 @@ class MouseListener{
     onMouseMove(event){
         if(this.game.map){
             var recursive_uuid = generate_uuid();
-            this.game.map.root_tile.setHighlight(event.offsetX, event.offsetY, recursive_uuid);
+            this.game.map.root_tile.setHighlight(event.offsetX, event.offsetY, this.game.map.root_x, this.game.map.root_y, recursive_uuid);
         }
     }
 

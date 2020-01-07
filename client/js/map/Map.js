@@ -2,6 +2,8 @@ class Map{
 
     constructor(root_tile){
         this.root_tile = root_tile;
+        this.root_x = 400;
+        this.root_y = 400;
     }
     
     getTileFromUUID(uuid){
@@ -20,7 +22,7 @@ class Map{
     }
 
     render(ctx, render_uuid){
-        this.root_tile.render(ctx, render_uuid);
+        this.root_tile.render(ctx, render_uuid, this.root_x, this.root_y);
     }
 
     tick(){

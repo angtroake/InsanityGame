@@ -24,7 +24,7 @@ function joingame(){
 
     socket.on("join_game", function(data){
         MOVE_AUTH = data["move_auth"];
-        game = new Game(socket, data["game_uuid"]);
+        game = new Game(socket, data["game_uuid"], data["player_uuid"]);
     });
     socket.emit("join_game", playername);
     showCanvas();

@@ -2,7 +2,7 @@ var Util = require("./Util.js")
 var Map = require("./map/map1/Map.js");
 
 const MAX_TURN_TIME = 60; //Seconds
-const MAX_LOBBY_TIME = 1;
+const MAX_LOBBY_TIME = 3;
 const MAX_PLAYERS = 6;
 
 class Game{
@@ -32,7 +32,8 @@ class Game{
         this.players.push(player);
         player.send("join_game", {
             "game_uuid": this.uuid,
-            "move_auth": player.move_auth
+            "move_auth": player.move_auth,
+            "player_uuid": player.uuid
         });
         player.game = this;
     }
@@ -61,7 +62,7 @@ class Game{
                 this.time++;
         }else if(this.state == Game.GAME_STATE.ingame){
             this.emit("game_tick", {
-                "current_player": this.currentPlayer.name,
+                "current_player": {"name": this.currentPlayer.name, "uuid": this.currentPlayer.uuid},
                 "time": MAX_TURN_TIME - this.time,
                 "players": this._listPlayersGame()
             });
@@ -92,15 +93,10 @@ class Game{
         });
 
         this.emit("game_start", {
-            "root_tile": {
-                "uuid": this.map.root_tile.uuid,
-                "x": this.map.root_tile.x,
-                "y": this.map.root_tile.y,
-                "image": this.map.root_tile.image
-            }
+            "tiles": this.map.tiles_to_list()
         });
         this.emit("game_tick", {
-            "current_player": this.currentPlayer.name,
+            "current_player": {"name": this.currentPlayer.name, "uuid": this.currentPlayer.uuid},
             "time": MAX_TURN_TIME - this.time,
             "players": this._listPlayersGame()
         });

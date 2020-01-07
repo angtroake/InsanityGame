@@ -3,7 +3,7 @@ var TARGET_FPS = 60;
 //CLIENT
 class Game{
 
-    constructor(socket, uuid, player){
+    constructor(socket, uuid, player_uuid){
         this.uuid = uuid;
         this.socket = socket;
         this.canvas = document.getElementById("canvas");
@@ -13,9 +13,9 @@ class Game{
 
         this.mouse_listener = new MouseListener(this);
 
-        this.map = new Map(new Tile("/res/test.png", generate_uuid()));
+        this.map = new Map(null);
         this.map = null;
-        this.player = player;
+        this.player_uuid = player_uuid;
         this.turn_time = 0;
         this.players = [];
         this.max_players;
@@ -34,7 +34,25 @@ class Game{
 
     gameStart(response){
         //console.log(response.root_tile.uuid);
-        this.map = new Map(new Tile(response.root_tile.image, response.root_tile.uuid, response.root_tile.x, response.root_tile.y));
+        var tile_list = response["tiles"];
+        var tile_obj_list = [];
+        tile_list.forEach((tile)=>{
+            tile_obj_list.push(new Tile(tile.image, tile.uuid, tile.x, tile.y));
+        });
+
+        tile_list.forEach((tile, i) => {
+            tile.sides.forEach((side, j)=>{
+                for(var k = 0 ; k < tile_obj_list.length ; k++){
+                    if(side == tile_obj_list[k].uuid){
+                        tile_obj_list[i].sides[j] = tile_obj_list[k];
+                        break;
+                    }
+                }
+            });
+        });
+
+        this.map = new Map(tile_obj_list[0]);
+        //this.map = new Map(new Tile(response.root_tile.image, response.root_tile.uuid, response.root_tile.x, response.root_tile.y));
         this.game_state = "ingame";
     }
 
@@ -45,17 +63,17 @@ class Game{
         this.players = response.players;
 
 
+
         this.players_on_tiles = {};
 
         this.players.forEach((p) => {
-            
-            if(!this.players_on_tiles[p.tile_uuid]){
-                //console.log("meep");
+            if(p.uuid == this.player_uuid)
+                this.player = p;
+
+            if(!this.players_on_tiles[p.tile_uuid])
                 this.players_on_tiles[p.tile_uuid] = [];
-            }
             this.players_on_tiles[p.tile_uuid].push(p);
         });
-        //console.log(this.players_on_tiles);
     }
 
     lobbyTick(response){
@@ -93,15 +111,18 @@ class Game{
             this.ctx.textAlign = "center";
             this.ctx.fillText("Current Turn", this.canvas.width() / 2, 40);
             this.ctx.font = "20px Arial";
-            this.ctx.fillText(this.current_player, this.canvas.width() / 2, 60);
+            if(this.current_player.uuid == this.player.uuid)
+                this.ctx.fillText("Your Turn", this.canvas.width() / 2, 60);
+            else    
+                this.ctx.fillText(this.current_player.name, this.canvas.width() / 2, 60);
             this.ctx.font = "45px Arial";
             this.ctx.fillText(this.time, this.canvas.width() / 2, 100);
             
 
             $.each(this.players_on_tiles, (tile_uuid, player_list) => {
                 var tile = this.map.getTileFromUUID(tile_uuid);
-                player_list.forEach((player) => {
-                    this.ctx.fillRect(tile.x + TILE_WIDTH/2 - 5, tile.y + TILE_HEIGHT/2 - 5, 10, 10);
+                player_list.forEach((player, i) => {
+                    this.ctx.fillRect(tile.x + 15 + 12*i, tile.y + TILE_HEIGHT/2 - 5, 10, 10);
                 });
             });
 
